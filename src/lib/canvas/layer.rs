@@ -1,4 +1,5 @@
 use std::rc;
+use std::collections::HashMap;
 
 extern crate matrix;
 use matrix::prelude::*;
@@ -14,6 +15,22 @@ pub struct Layer<P, C>
 	pixels: Vec<Vec<P>>,
 	width: usize,
 	height: usize,
+}
+
+impl<P, C> std::ops::Index<[usize; 2]> for Layer<P, C>
+{
+	type Output = P;
+
+    fn index(&self, index: [usize; 2]) -> &Self::Output {
+		&self.pixels[index[0]][index[1]]
+    }
+}
+
+impl<P, C> std::ops::IndexMut<[usize; 2]> for Layer<P, C>
+{
+    fn index_mut(&mut self, index: [usize; 2]) -> &mut Self::Output {
+		&mut self.pixels[index[0]][index[1]]
+    }
 }
 
 impl<P, C, T> LayerTraits<P, C, T> for Layer<P, C>
@@ -58,12 +75,15 @@ where
 		(position, rc::Rc::downgrade(&self.colors[position]))
 	}
 
-	fn set_pixel_color(&mut self, map: Vec<(C, Vec<(C, Vec<[usize; 2]>)>)>){
-		// let (_, color) = self.add_color(new_color);
-		// for [i, j] in pixel_coords {
-		// 	self.pixels[i][j].set_color(color.clone());
-		// }
-		// self.drop_unused_colors();
+	fn set_pixel_color(&mut self, map: HashMap<C, Vec<[usize; 2]>>) {
+		for (mapped_color, pixel_indexes) in map.into_iter(){
+			let (_, color) = self.add_color(mapped_color);
+			for pixel_index in pixel_indexes {
+				self[pixel_index].set_color(color.clone());
+			}
+		}
+
+		self.drop_unused_colors();
 	}
 
 	fn change_color_value(&mut self, old_color: C, new_color: C) {
