@@ -16,6 +16,7 @@ pub trait ColorValue<T> :
 	+ std::fmt::Display
 	+ std::fmt::Debug
 	+ cmp::Ord
+	+ std::hash::Hash
 	+ PartialOrd<T>
 	+ From<T>
 	+ Into<T>
@@ -43,6 +44,7 @@ impl ColorValue<u64> for u64 {}
 pub trait ColorTraits<T> :
 	cmp::Ord
 	+ for<'a> std::ops::Mul<&'a [[f64; 4]; 4]>
+	+ std::hash::Hash
 	+ std::clone::Clone
 	+ std::default::Default
 	+ std::fmt::Debug
@@ -52,8 +54,6 @@ where
 	fn new(color: [T; 4]) -> Self;
 	fn get_values(&self) -> &[T; 4];
 	fn set_color_value(&mut self, new_value: [T; 4]);
-	fn add_user_addr(&mut self, addr: [usize; 2]);
-	fn get_user_addr(&self) -> &Vec<[usize; 2]>;
 
 	fn mul_f64(&self, other: f64) -> Self {
 		let matrix: [[f64; 4]; 4] = identity_matrix(other);
@@ -64,7 +64,7 @@ where
 	where Self: Sized
     {
 		let matrix = matrix_f64_to_u128(other);
-		let color: [T; 4] = matrix_product(&matrix, &self.get_values());
+		let color: [T; 4] = matrix_product(&matrix, self.get_values());
 		Self::new(color)
     }
 
