@@ -1,7 +1,7 @@
 use std::rc;
 
-use crate::traits::colors::color::{ColorTraits, ColorValue};
-use crate::traits::canvas::pixel::PixelTraits;
+use super::traits::color::{ColorTraits, ColorValue};
+use super::traits::pixel::PixelTraits;
 
 #[derive(Debug)]
 #[derive(Clone)]

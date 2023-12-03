@@ -1,6 +1,6 @@
 use std::{cmp, fmt};
 
-use crate::traits::colors::*;
+use super::traits::color::*;
 
 #[derive(Debug)]
 #[derive(Hash)]

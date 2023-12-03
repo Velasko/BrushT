@@ -1,9 +1,9 @@
 use std::rc;
 use std::collections::HashMap;
 
-use crate::traits::colors::color::{ColorTraits, ColorValue};
-use crate::traits::canvas::pixel::PixelTraits;
-use crate::traits::canvas::layer::LayerTraits;
+use super::traits::color::{ColorTraits, ColorValue};
+use super::traits::pixel::PixelTraits;
+use super::traits::layer::LayerTraits;
 
 #[derive(Clone)]
 pub struct Layer<P, C>

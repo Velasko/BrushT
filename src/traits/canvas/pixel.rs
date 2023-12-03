@@ -1,6 +1,6 @@
 use std::rc;
 
-use crate::traits::colors::{ColorTraits, ColorValue};
+use super::color::{ColorTraits, ColorValue};
 
 pub trait PixelTraits<C, T> :
 	std::clone::Clone

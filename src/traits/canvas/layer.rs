@@ -1,8 +1,8 @@
 use std::rc;
 use std::collections::HashMap;
 
-use crate::traits::colors::color::{ColorTraits, ColorValue};
-use crate::traits::canvas::pixel::PixelTraits;
+use super::color::{ColorTraits, ColorValue};
+use super::pixel::PixelTraits;
 
 pub trait LayerTraits<P, C, T>:
 	std::clone::Clone

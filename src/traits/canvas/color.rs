@@ -1,7 +1,7 @@
 pub use num;
 use std::cmp;
 
-use super::utils::*;
+use super::color_utils::*;
 
 pub trait ColorValue<T> :
 	num::Unsigned
