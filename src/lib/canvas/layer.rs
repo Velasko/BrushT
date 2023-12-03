@@ -1,13 +1,11 @@
 use std::rc;
 use std::collections::HashMap;
 
-extern crate matrix;
-use matrix::prelude::*;
-
 use crate::traits::colors::color::{ColorTraits, ColorValue};
 use crate::traits::canvas::pixel::PixelTraits;
 use crate::traits::canvas::layer::LayerTraits;
 
+#[derive(Clone)]
 pub struct Layer<P, C>
 {
 	colors_users: Vec<Vec<[usize; 2]>>,
@@ -17,31 +15,15 @@ pub struct Layer<P, C>
 	height: usize,
 }
 
-impl<P, C> std::ops::Index<[usize; 2]> for Layer<P, C>
-{
-	type Output = P;
-
-    fn index(&self, index: [usize; 2]) -> &Self::Output {
-		&self.pixels[index[0]][index[1]]
-    }
-}
-
-impl<P, C> std::ops::IndexMut<[usize; 2]> for Layer<P, C>
-{
-    fn index_mut(&mut self, index: [usize; 2]) -> &mut Self::Output {
-		&mut self.pixels[index[0]][index[1]]
-    }
-}
-
 impl<P, C, T> LayerTraits<P, C, T> for Layer<P, C>
 where
 	P: PixelTraits<C, T>,
 	C: ColorTraits<T>,
 	T: ColorValue<T>,
 {
-	fn new(height: u16, width: u16) -> Self {
-		let width: usize = width.into();
-		let height: usize = height.into();
+	fn new(height: usize, width: usize) -> Self {
+		let width: usize = width;
+		let height: usize = height;
 
 		let mut this = Self {
 			colors_users: Vec::new(),
@@ -79,7 +61,7 @@ where
 		for (mapped_color, pixel_indexes) in map.into_iter(){
 			let (_, color) = self.add_color(mapped_color);
 			for pixel_index in pixel_indexes {
-				self[pixel_index].set_color(color.clone());
+				self.pixels[pixel_index[0]][pixel_index[1]].set_color(color.clone());
 			}
 		}
 
@@ -96,6 +78,14 @@ where
 		}
 	}
 
+	fn get_dimensions(&self) -> [usize; 2] {
+		[self.height, self.width]
+	}
+
+	fn resize(&self, height: usize, width: usize) -> Self {
+		unimplemented!("yet too make resize");
+	}
+
 	fn get_pixels(&self) -> &Vec<Vec<P>> {
 		&self.pixels
 	}
@@ -107,5 +97,4 @@ where
 	fn drop_unused_colors(&mut self) {
 		self.colors.retain(|color| rc::Rc::weak_count(color) > 1);
 	}
-
 }

@@ -4,6 +4,7 @@ use crate::traits::colors::color::{ColorTraits, ColorValue};
 use crate::traits::canvas::pixel::PixelTraits;
 
 #[derive(Debug)]
+#[derive(Clone)]
 pub struct Pixel<C>
 {
 	color: rc::Weak<C>

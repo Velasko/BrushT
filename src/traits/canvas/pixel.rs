@@ -3,6 +3,7 @@ use std::rc;
 use crate::traits::colors::{ColorTraits, ColorValue};
 
 pub trait PixelTraits<C, T> :
+	std::clone::Clone
 where
 	C: ColorTraits<T>,
 	T: ColorValue<T>
@@ -12,7 +13,7 @@ where
 	fn get_color(&self) -> &rc::Weak<C>;
 	fn set_color(&mut self, box_color: rc::Weak<C>);
 
-	fn add(&self, other: &Self) -> C
+	fn blend(&self, other: &Self) -> C
 	{
 		let this_color = self.get_color().upgrade().expect("");
 		let other_color = other.get_color().upgrade().expect("");
