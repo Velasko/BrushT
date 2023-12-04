@@ -7,10 +7,6 @@ where
 	C: color::ColorTraits<T>,
 	T: color::ColorValue<T>
 {
-	fn new() -> Self;
-
-// 	fn get_preview(&self) -> L;
-// 	fn render(&self) -> L;
-//
-// 	fn refresh(&mut self);
+	fn new(dimension: [usize; 2]) -> Self;
+ 	fn render(&mut self) -> L;
 }

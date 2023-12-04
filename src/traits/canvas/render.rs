@@ -7,5 +7,8 @@ where
 	C: color::ColorTraits<T>,
 	T: color::ColorValue<T>
 {
+	fn new(dimension: [usize; 2]) -> Self;
 	fn render(&mut self) -> &L;
 }
+
+// how to add layers/masks ?

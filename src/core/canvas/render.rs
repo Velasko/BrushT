@@ -23,6 +23,15 @@ where
 	C: color::ColorTraits<T>,
 	T: color::ColorValue<T>,
 {
+	// How to edit the tree ?
+
+	fn new(dimension: [usize; 2]) -> Self {
+		Self {
+			child: RenderTree::Layer(L::new(dimension)),
+			cache: None
+		}
+	}
+
 	fn render(&mut self) -> &L {
 		let layer = match self.cache.take() {
 			Some(render) => render,
