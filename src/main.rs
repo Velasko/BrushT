@@ -12,7 +12,7 @@ use crate::core::canvas::*;
 fn main() {
     let mut layer_instance:
         layer::Layer<pixel::Pixel<color::Color<u8>>,
-        color::Color<u8>> = layer::Layer::new(10, 10);
+        color::Color<u8>> = layer::Layer::new([10, 10]);
 
     let col1 = color::Color::<u8>::new([255, 0, 0, 1]);
 

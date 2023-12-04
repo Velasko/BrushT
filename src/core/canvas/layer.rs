@@ -9,8 +9,7 @@ pub struct Layer<P, C>
 	colors_users: Vec<Vec<[usize; 2]>>,
 	colors: Vec<rc::Rc<C>>,
 	pixels: Vec<Vec<P>>,
-	width: usize,
-	height: usize,
+	dimensions: [usize; 2],
 }
 
 impl<P, C, T> layer::LayerTraits<P, C, T> for Layer<P, C>
@@ -19,27 +18,18 @@ where
 	C: color::ColorTraits<T>,
 	T: color::ColorValue<T>,
 {
-	fn new(height: usize, width: usize) -> Self {
-		let width: usize = width;
-		let height: usize = height;
-
+	fn new(dimensions: [usize; 2]) -> Self {
 		let mut this = Self {
 			colors_users: Vec::new(),
 			colors: Vec::new(),
-			pixels: Vec::with_capacity(height),
-			width,
-			height,
+			pixels: Vec::new(),
+			dimensions
 		};
 		let (_, default_color) = this.add_color(C::default());
-
-		for _ in 0..height {
-			let mut line = Vec::with_capacity(width);
-			for _ in 0..width {
-				line.push(P::new(default_color.clone()));
-			}
-			this.pixels.push(line);
-		}
-
+		this.pixels = vec![
+			vec![P::new(default_color.clone()); dimensions[1]];
+			dimensions[0]
+		];
 		this
 	}
 
@@ -76,8 +66,8 @@ where
 		}
 	}
 
-	fn get_dimensions(&self) -> [usize; 2] {
-		[self.height, self.width]
+	fn get_dimensions(&self) -> &[usize; 2] {
+		&self.dimensions
 	}
 
 	fn resize(&self, height: usize, width: usize) -> Self {

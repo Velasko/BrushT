@@ -10,12 +10,12 @@ where
 	C: color::ColorTraits<T>,
 	T: color::ColorValue<T>
 {
-	fn new(height: usize, width: usize) -> Self;
+	fn new(dimensions: [usize; 2]) -> Self;
 	fn add_color(&mut self, new_color: C) -> (usize, rc::Weak<C>);
 	fn set_pixel_color(&mut self, map: HashMap<C, Vec<[usize; 2]>>);
 	fn change_color_value(&mut self, old_color: C, new_color: C);
 
-	fn get_dimensions(&self) -> [usize; 2];
+	fn get_dimensions(&self) -> &[usize; 2];
 	fn resize(&self, height: usize, width: usize) -> Self;
 
 	fn get_pixels(&self) -> &Vec<Vec<P>>;
@@ -24,7 +24,7 @@ where
 
 	fn add(&self, other: &Self) -> Self
 	{
-		let (height, width) = self.get_dimensions().into();
+		let dimension = self.get_dimensions();
 		let other_pixels = other.get_pixels();
 		let mut color_vec: Vec<C> = Vec::new();
 		let mut indexes_vec: Vec<Vec<[usize; 2]>> = Vec::new();
@@ -48,7 +48,7 @@ where
 		}
 		color_map.shrink_to_fit();
 
-		let mut new_layer = Self::new(height, width);
+		let mut new_layer = Self::new(dimension.clone());
 		new_layer.set_pixel_color(color_map);
 		new_layer
 	}
