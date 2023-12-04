@@ -7,7 +7,7 @@ where
 	C: color::ColorTraits<T>,
 	T: color::ColorValue<T>
 {
-	fn new(matrix: [[f64; 4]; 4]) -> Self;
+	fn new(size: usize) -> Self;
 
 	fn render(&self, layer: &L) -> L;
 }
