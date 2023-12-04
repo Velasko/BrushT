@@ -7,5 +7,5 @@ where
 	C: color::ColorTraits<T>,
 	T: color::ColorValue<T>
 {
-	fn render(&self) -> L;
+	fn render(&mut self) -> &L;
 }
