@@ -10,7 +10,7 @@ where
 	fn new() -> Self;
 
 // 	fn get_preview(&self) -> L;
-// 	fn output(&self) -> L;
+// 	fn render(&self) -> L;
 //
 // 	fn refresh(&mut self);
 }
