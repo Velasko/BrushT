@@ -1,9 +1,7 @@
 use std::rc;
 use std::collections::HashMap;
 
-use super::traits::color::{ColorTraits, ColorValue};
-use super::traits::pixel::PixelTraits;
-use super::traits::layer::LayerTraits;
+use super::traits::*;
 
 #[derive(Clone)]
 pub struct Layer<P, C>
@@ -15,11 +13,11 @@ pub struct Layer<P, C>
 	height: usize,
 }
 
-impl<P, C, T> LayerTraits<P, C, T> for Layer<P, C>
+impl<P, C, T> layer::LayerTraits<P, C, T> for Layer<P, C>
 where
-	P: PixelTraits<C, T>,
-	C: ColorTraits<T>,
-	T: ColorValue<T>,
+	P: pixel::PixelTraits<C, T>,
+	C: color::ColorTraits<T>,
+	T: color::ColorValue<T>,
 {
 	fn new(height: usize, width: usize) -> Self {
 		let width: usize = width;
