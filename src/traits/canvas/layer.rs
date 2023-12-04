@@ -1,15 +1,14 @@
 use std::rc;
 use std::collections::HashMap;
 
-use super::color::{ColorTraits, ColorValue};
-use super::pixel::PixelTraits;
+use super::*;
 
 pub trait LayerTraits<P, C, T>:
 	std::clone::Clone
 where
-	P: PixelTraits<C, T>,
-	C: ColorTraits<T>,
-	T: ColorValue<T>
+	P: pixel::PixelTraits<C, T>,
+	C: color::ColorTraits<T>,
+	T: color::ColorValue<T>
 {
 	fn new(height: usize, width: usize) -> Self;
 	fn add_color(&mut self, new_color: C) -> (usize, rc::Weak<C>);
