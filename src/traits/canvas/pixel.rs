@@ -1,19 +1,17 @@
 use std::rc;
 
-use super::color::{ColorTraits, ColorValue};
+use super::*;
 
-pub trait PixelTraits<C, T> :
+pub trait PixelTraits:
 	std::clone::Clone
-where
-	C: ColorTraits<T>,
-	T: ColorValue<T>
 {
-	fn new(color: rc::Weak<C>) -> Self;
+	type ColorImpl: color::ColorTraits;
+	fn new(color: rc::Weak<Self::ColorImpl>) -> Self;
 
-	fn get_color(&self) -> &rc::Weak<C>;
-	fn set_color(&mut self, box_color: rc::Weak<C>);
+	fn get_color(&self) -> &rc::Weak<Self::ColorImpl>;
+	fn set_color(&mut self, box_color: rc::Weak<Self::ColorImpl>);
 
-	fn blend(&self, other: &Self) -> C
+	fn blend(&self, other: &Self) -> Self::ColorImpl
 	{
 		let this_color = self.get_color().upgrade().expect("");
 		let other_color = other.get_color().upgrade().expect("");

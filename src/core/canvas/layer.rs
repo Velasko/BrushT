@@ -12,12 +12,14 @@ pub struct Layer<P, C>
 	dimensions: [usize; 2],
 }
 
-impl<P, C, T> layer::LayerTraits<P, C, T> for Layer<P, C>
+impl<P, C> layer::LayerTraits<P, C> for Layer<P, C>
 where
-	P: pixel::PixelTraits<C, T>,
-	C: color::ColorTraits<T>,
-	T: color::ColorValue<T>,
+	P: pixel::PixelTraits,
+	C: color::ColorTraits,
 {
+	type PixelImpl = P;
+	type ColorImpl = C;
+
 	fn new(dimensions: [usize; 2]) -> Self {
 		let mut this = Self {
 			colors_users: Vec::new(),

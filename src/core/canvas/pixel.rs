@@ -10,11 +10,11 @@ pub struct Pixel<C>
 	color: rc::Weak<C>
 }
 
-impl<C, T> PixelTraits<C, T> for Pixel<C>
+impl<C> PixelTraits for Pixel<C>
 where
-	C: ColorTraits<T>,
-	T: ColorValue<T>
+	C: ColorTraits,
 {
+	type ColorImpl = C;
 	fn new(box_color: rc::Weak<C>) -> Self {
 		Self {
 			color: box_color

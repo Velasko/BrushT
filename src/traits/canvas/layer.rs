@@ -3,30 +3,29 @@ use std::collections::HashMap;
 
 use super::*;
 
-pub trait LayerTraits<P, C, T>:
+pub trait LayerTraits<P, C>:
 	std::clone::Clone
-where
-	P: pixel::PixelTraits<C, T>,
-	C: color::ColorTraits<T>,
-	T: color::ColorValue<T>
 {
+	type PixelImpl: pixel::PixelTraits;
+	type ColorImpl: color::ColorTraits;
+
 	fn new(dimensions: [usize; 2]) -> Self;
-	fn add_color(&mut self, new_color: C) -> (usize, rc::Weak<C>);
-	fn set_pixel_color(&mut self, map: HashMap<C, Vec<[usize; 2]>>);
-	fn change_color_value(&mut self, old_color: C, new_color: C);
+	fn add_color(&mut self, new_color: Self::ColorImpl) -> (usize, rc::Weak<Self::ColorImpl>);
+	fn set_pixel_color(&mut self, map: HashMap<Self::ColorImpl, Vec<[usize; 2]>>);
+	fn change_color_value(&mut self, old_color: Self::ColorImpl, new_color: Self::ColorImpl);
 
 	fn get_dimensions(&self) -> &[usize; 2];
 	fn resize(&self, height: usize, width: usize) -> Self;
 
-	fn get_pixels(&self) -> &Vec<Vec<P>>;
-	fn get_colors(&self) -> &Vec<rc::Rc<C>>;
+	fn get_pixels(&self) -> &Vec<Vec<Self::PixelImpl>>;
+	fn get_colors(&self) -> &Vec<rc::Rc<Self::ColorImpl>>;
 	fn drop_unused_colors(&mut self);
 
 	fn add(&self, other: &Self) -> Self
 	{
 		let dimension = self.get_dimensions();
 		let other_pixels = other.get_pixels();
-		let mut color_vec: Vec<C> = Vec::new();
+		let mut color_vec: Vec<Self::ColorImpl> = Vec::new();
 		let mut indexes_vec: Vec<Vec<[usize; 2]>> = Vec::new();
 
 		for (i, self_line) in self.get_pixels().iter().enumerate() {
@@ -42,7 +41,7 @@ where
 			}
 		}
 
-		let mut color_map: HashMap<C, Vec<[usize; 2]>> = HashMap::new();
+		let mut color_map: HashMap<Self::ColorImpl, Vec<[usize; 2]>> = HashMap::new();
 		for (color, indexes) in color_vec.into_iter().zip(indexes_vec.into_iter()){
 			color_map.insert(color, indexes);
 		}
