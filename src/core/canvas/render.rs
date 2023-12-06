@@ -55,13 +55,20 @@ where
 
 	fn clear_cache(&mut self) {
 		self.cache = None;
-		match self.parent {
+		match &self.parent {
 			None => (),
 			Some(parent) => {
 				parent.upgrade().unwrap().render();
 			}
 		}
 	}
+
+	fn insert(&mut self, index: usize, layer: L) {
+	}
+
+	fn pop(&mut self, layer: L) {
+	}
+
 }
 
 pub struct RenderTree<M, L> {
