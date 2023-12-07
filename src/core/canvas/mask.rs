@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 
 use super::traits::*;
+use pixel::PixelTraits;
+use color::ColorTraits;
 
 #[derive(Default, Clone)]
 pub struct ColorMask
@@ -14,12 +16,7 @@ pub struct PixelMask
 	size: usize
 }
 
-impl<L, P, C, T> mask::MaskTraits<L, P, C, T> for PixelMask
-where
-	L: layer::LayerTraits<P, C, T>,
-	P: pixel::PixelTraits<C, T>,
-	C: color::ColorTraits<T>,
-	T: color::ColorValue<T>,
+impl mask::MaskTraits for PixelMask
 {
 	fn new(size: usize) -> Self {
 		let size = if size % 2 == 0 { size + 1 } else { size };
@@ -29,7 +26,7 @@ where
 		}
 	}
 
-	fn render(&self, layer: &L) -> L {
+	fn render<L>(&self, layer: &L) -> L where L: layer::LayerTraits {
 		let pixels = layer.get_pixels();
 
 		let mut colors = Vec::new();
@@ -38,16 +35,16 @@ where
 		for (i, line) in pixels.iter().enumerate() {
 			for (j, pixel) in line.iter().enumerate() {
 
-				let mut new_color = C::default();
+				let mut new_color = L::ColorImpl::default();
 
 				for m in 0..self.size{
 					for n in 0..self.size{
 						let color = match pixels.get(i - (m/2 + 1)) {
-							None => C::default(),
+							None => L::ColorImpl::default(),
 							Some(line) => match line.get(j - (n/2 + 1)) {
-								None => C::default(),
-								Some(pixel) => pixel.get_color().upgrade()
-									.expect("Could not render mask.").as_ref().clone()
+								None => L::ColorImpl::default(),
+								Some(pixel) => L::ColorImpl::color_into(pixel.get_color().upgrade()
+									.expect("Could not render mask.").as_ref())
 							}
 						};
 						let masked_color = color.mul_matrix(&self.mask[m][n].mask);

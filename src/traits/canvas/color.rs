@@ -1,5 +1,6 @@
 pub use num;
 use std::cmp;
+use num::{Bounded, Saturating};
 
 use super::color_utils::*;
 
@@ -19,6 +20,7 @@ pub trait ColorValue :
 	+ TryFrom<u128>
 	+ Into<u128>
 	+ num::PrimInt
+	+ std::ops::Shl<i8, Output = Self>
 	{
 		fn from_u128_saturated(value: u128) -> Self {
 			value.try_into().unwrap_or(Self::max_value())
@@ -26,6 +28,17 @@ pub trait ColorValue :
 
 		fn get_size() -> usize {
 			std::mem::size_of::<Self>()
+		}
+
+		fn color_into<T>(other: &T) -> Self where T: ColorValue {
+			let tsize = T::get_size();
+			let ssize = Self::get_size();
+			let value = if ssize > tsize {
+				*other << (ssize - tsize)
+			} else {
+				*other >> (tsize - ssize)
+			};
+			(value.into()).try_into().unwrap_or(Self::max_value())
 		}
 	}
 
@@ -44,6 +57,7 @@ pub trait ColorTraits:
 	+ std::fmt::Debug
 {
 	type HueType: ColorValue;
+
 	fn new(color: [Self::HueType; 4]) -> Self;
 	fn get_values(&self) -> &[Self::HueType; 4];
 	fn set_color_value(&mut self, new_value: [Self::HueType; 4]);
@@ -72,9 +86,9 @@ pub trait ColorTraits:
 		let binding = other.mul_f64(rhm);
 		let rhc = binding.get_values();
 
-		let new_color: [Self::ColorValue; 4] = lhc.iter().zip(rhc.iter()).map(
+		let new_color: [Self::HueType; 4] = lhc.iter().zip(rhc.iter()).map(
 			|(l, r)| (*l).saturating_add(*r)
-		).collect::<Vec<Self::ColorValue>>().try_into().unwrap();
+		).collect::<Vec<Self::HueType>>().try_into().unwrap();
 		Self::new(new_color)
     }
 
@@ -102,6 +116,16 @@ pub trait ColorTraits:
 
 	fn get_type_max(&self) -> Self::HueType {
         Self::HueType::max_value()
+    }
+
+    fn color_into<T>(other: &T) -> Self where T: ColorTraits {
+    	let [r, g, b, a] = other.get_values();
+    	Self::new([
+    		Self::HueType::color_into(r),
+    		Self::HueType::color_into(g),
+    		Self::HueType::color_into(b),
+    		Self::HueType::color_into(a),
+    	])
     }
 
 	#[allow(non_snake_case)]

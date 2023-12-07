@@ -1,25 +1,26 @@
 use super::traits::*;
 
 pub struct Canvas<R>
+where
+	R: render::RenderTrait
 {
 	content: R
 }
 
-impl<R, L, P, C, T> canvas::CanvasTraits<L, P, C, T> for Canvas<R>
+impl<R> canvas::CanvasTraits for Canvas<R>
 where
-	R: render::RenderTrait<L, P, C, T>,
-	L: layer::LayerTraits<P, C, T>,
-	P: pixel::PixelTraits<C, T>,
-	C: color::ColorTraits<T>,
-	T: color::ColorValue<T>
+	R: render::RenderTrait
 {
+	type RenderImpl = R;
+	type LayerImpl = R::LayerImpl;
+
 	fn new(dimension: [usize; 2]) -> Self {
 		Self {
 			content: R::new(dimension)
 		}
 	}
 
-	fn render(&mut self) -> L {
+	fn render(&mut self) -> Self::LayerImpl {
 		self.content.render().clone()
 	}
 }

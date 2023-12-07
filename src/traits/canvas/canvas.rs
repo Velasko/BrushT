@@ -1,12 +1,10 @@
 use super::*;
 
-pub trait CanvasTraits<L, P, C, T>:
-where
-	L: layer::LayerTraits<P, C, T>,
-	P: pixel::PixelTraits<C, T>,
-	C: color::ColorTraits<T>,
-	T: color::ColorValue<T>
+pub trait CanvasTraits:
 {
+	type RenderImpl: render::RenderTrait;
+	type LayerImpl: layer::LayerTraits;
+
 	fn new(dimension: [usize; 2]) -> Self;
- 	fn render(&mut self) -> L;
+ 	fn render(&mut self) -> Self::LayerImpl;
 }

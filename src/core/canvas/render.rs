@@ -2,39 +2,30 @@ use std::{rc, marker};
 
 use super::traits::*;
 
-pub enum RenderTreeTypes<M, L, P, C, T>
+pub enum RenderTreeTypes<M, L>
 {
 	Layer(L),
-	Mask(M, rc::Weak<RenderNode<M, L, P, C, T>>),
-	Tree(rc::Weak<RenderNode<M, L, P, C, T>>, rc::Weak<RenderNode<M, L, P, C, T>>),
+	Mask(M, rc::Weak<RenderNode<M, L>>),
+	Tree(rc::Weak<RenderNode<M, L>>, rc::Weak<RenderNode<M, L>>),
 }
 
-pub struct RenderNode<M, L, P, C, T>
+pub struct RenderNode<M, L>
 {
 	parent: Option<rc::Weak<Self>>,
-	child: RenderTreeTypes<M, L, P, C, T>,
+	child: RenderTreeTypes<M, L>,
 	cache: Option<L>,
-	_P: marker::PhantomData<P>,
-	_C: marker::PhantomData<C>,
-	_T: marker::PhantomData<T>
 }
 
-impl<M, L, P, C, T> RenderNode<M, L, P, C, T>
+impl<M, L> RenderNode<M, L>
 where
-	M: mask::MaskTraits<L, P, C, T>,
-	L: layer::LayerTraits<P, C, T>,
-	P: pixel::PixelTraits<C, T>,
-	C: color::ColorTraits<T>,
-	T: color::ColorValue<T>,
+	M: mask::MaskTraits,
+	L: layer::LayerTraits
 {
 	fn new(dimension: [usize; 2]) -> Self {
 		Self {
 			parent: None,
 			child: RenderTreeTypes::Layer(L::new(dimension)),
 			cache: None,
-			_P: marker::PhantomData,
-			_C: marker::PhantomData,
-			_T: marker::PhantomData,
 		}
 	}
 
@@ -80,19 +71,19 @@ where
 	}
 }
 
-pub struct RenderTree<M, L, P, C, T> {
-	nodes: Vec<rc::Rc<RenderNode<M, L, P, C, T>>>,
+pub struct RenderTree<M, L> {
+	nodes: Vec<rc::Rc<RenderNode<M, L>>>,
 	dimension: [usize; 2],
 }
 
-impl<M, L, P, C, T> render::RenderTrait<L, P, C, T> for RenderTree<M, L, P, C, T>
+impl<M, L> render::RenderTrait for RenderTree<M, L>
 where
-	M: mask::MaskTraits<L, P, C, T>,
-	L: layer::LayerTraits<P, C, T>,
-	P: pixel::PixelTraits<C, T>,
-	C: color::ColorTraits<T>,
-	T: color::ColorValue<T>,
+	M: mask::MaskTraits,
+	L: layer::LayerTraits
 {
+    type LayerImpl = L;
+    type MaskImpl = M;
+
 	// How to edit the tree ?
 
 	fn new(dimension: [usize; 2]) -> Self {
