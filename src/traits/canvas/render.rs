@@ -5,12 +5,11 @@ where
     R: RenderTrait,
 {
     Layer(R::LayerImpl),
-    Mask(R::MaskImpl, R),
+    Mask(Box<dyn mask::MaskTraits>, R),
 }
 
 pub trait RenderTrait: Sized {
     type LayerImpl: layer::LayerTraits;
-    type MaskImpl: mask::MaskTraits;
 
     fn new(dimension: [usize; 2]) -> Self;
     fn render(&mut self) -> &Self::LayerImpl;

@@ -1,4 +1,5 @@
 use super::traits::*;
+use crate::traits::canvas::render::RenderTrait;
 
 pub struct RenderTree<L>
 where
@@ -18,29 +19,41 @@ where
         self.cache.resize(self.nodes.len() - 1, None);
     }
 
-    fn recursive_render(&mut self, cache_index: usize, nodes: &[Option<L>]) -> &L {
+    fn recursive_render(&mut self, cache_index: usize) -> Option<&L> {
         match self.cache[cache_index] {
-            Some(layer) => &layer,
+            Some(layer) => Some(&layer),
             None => {
-                let left_index = (cache_index + 1) << 1;
-                let right_index = left_index - 1;
-
-                let layer = if nodes.len() == 1 {
-                    match self.cache[cache_index].take() {
-                        Some(layer) => layer,
-                        None => match nodes[0] {
-                            Some(layer) => layer.clone(),
-                            None => L::new([1, 1]),
-                        },
+                let layer = if cache_index >= self.cache.len() {
+                    let left_index = cache_index - (1 << (self.cache.len().ilog2() + 1));
+                    let right_index = left_index + 1;
+                    match self.nodes.get(right_index) {
+                        None => &self.nodes[self.nodes.len()],
+                        Some(render_node) => {
+                            let right = match render_node {
+                                render::RenderNode::Layer(layer) => layer.clone(),
+                                render::RenderNode::Mask(mask, subrender) => {
+                                    mask.render(subrender.render())
+                                }
+                            };
+                            let left = match self.nodes[left_index] {
+                                render::RenderNode::Layer(layer) => layer.clone(),
+                                render::RenderNode::Mask(mask, subrender) => {
+                                    mask.render(subrender.render())
+                                }
+                            };
+                            left.add(&right)
+                        }
                     }
                 } else {
-                    let (left_render, right_render) = nodes.split_at(nodes.len() >> 1);
+                    let left_index = (cache_index << 1) + 1;
+                    let right_index = left_index + 1;
 
-                    self.recursive_render(left_index, left_render)
-                        .add(self.recursive_render(right_index, right_render))
+                    self.recursive_render(left_index)?
+                        .add(self.recursive_render(right_index)?)
                 };
+
                 self.cache[cache_index] = Some(layer);
-                &layer
+                Some(&layer)
             }
         }
     }
@@ -63,42 +76,7 @@ where
     }
 
     fn render(&mut self) -> &L {
-        let bottom_layer_index = (self.nodes.len() + 1) >> 1;
-        let node_pairs = self.nodes.chunks_exact(2);
-        for (n, [left_leaf, right_leaf]) in node_pairs.enumerate() {
-            match self.cache[bottom_layer_index + n] {
-                Some(_) => (),
-                None => {
-                    let left_render = match left_leaf {
-                        render::RenderNode::Layer(layer) => layer.clone(),
-                        render::RenderNode::Mask(mask, subrender) => {
-                            mask.render(subrender.render())
-                        }
-                    };
-                    let right_render = match right_leaf {
-                        render::RenderNode::Layer(layer) => layer.clone(),
-                        render::RenderNode::Mask(mask, subrender) => {
-                            mask.render(subrender.render())
-                        }
-                    };
-                    self.cache[bottom_layer_index + n] = Some(left_render.add(&right_render));
-                }
-            }
-        }
-        let rem = node_pairs.remainder();
-        if rem.len() > 0 {
-            let index = self.nodes.len() >> self.nodes.len().trailing_ones();
-            let layer = match self.cache[index].take() {
-                Some(layer) => layer,
-                None => match rem[0] {
-                    render::RenderNode::Layer(layer) => layer.clone(),
-                    render::RenderNode::Mask(mask, subrender) => mask.render(subrender.render()),
-                },
-            };
-            self.cache[index] = Some(layer);
-        }
-
-        let a = self.recursive_render(0, &self.cache[..]);
+        self.recursive_render(0).unwrap()
     }
 
     fn clear_cache(&mut self) {
